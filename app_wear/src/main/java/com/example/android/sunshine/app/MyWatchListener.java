@@ -22,7 +22,7 @@ public class MyWatchListener  extends WearableListenerService
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, DataApi.DataListener {
 
     public final String LOG_TAG = MyWatchListener.class.getSimpleName();
-    private static final String WEARABLE_DATA_PATH = "/sunshine_watch_data";
+    private static final String WEARABLE_PATH = "/sunshine_watch_data";
 
 
     GoogleApiClient mGoogleApiClient;
@@ -53,7 +53,6 @@ public class MyWatchListener  extends WearableListenerService
         .addApi(Wearable.API)
         .build();
         mGoogleApiClient.connect();
-        Log.i(LOG_TAG, "onCreate");
 
     }
 
@@ -71,14 +70,11 @@ public class MyWatchListener  extends WearableListenerService
         DataMap dataMap;
         for (DataEvent event : dataEvents) {
 
-            // Check the data type
             if (event.getType() == DataEvent.TYPE_CHANGED) {
 
-            // Get the data map
                 dataMap = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
                 Log.i(LOG_TAG, "DataMap received on watch: " + dataMap);
 
-            // Get the data map items
                 String sunshine_temp_high = dataMap.getString("sunshine_temp_high");
                 String sunshine_temp_low = dataMap.getString("sunshine_temp_low");
                 String  sunshine_temp_desc = dataMap.get("sunshine_temp_desc");
@@ -89,14 +85,13 @@ public class MyWatchListener  extends WearableListenerService
                 Log.i(LOG_TAG, "Temperature: " + sunshine_temp_high + ", " + sunshine_temp_low);
                 Log.i(LOG_TAG, "Weather id: " + sunshine_weather_id);
 
-            // Create intent and broadcast it
-                Intent send_weather = new Intent("ACTION_WEATHER_CHANGED");
-                send_weather.putExtra("sunshine_temp_high", sunshine_temp_high);
-                send_weather.putExtra("sunshine_temp_low", sunshine_temp_low);
-                send_weather.putExtra("sunshine_temp_desc", sunshine_temp_desc);
-                send_weather.putExtra("sunshine_weather_id", sunshine_weather_id);
-                send_weather.putExtra("sunshine_time_millis", sunshine_time_millis);
-                sendBroadcast(send_weather);
+                Intent send_watch = new Intent("ACTION_WEATHER_CHANGED");
+                send_watch.putExtra("sunshine_temp_high", sunshine_temp_high);
+                send_watch.putExtra("sunshine_temp_low", sunshine_temp_low);
+                send_watch.putExtra("sunshine_temp_desc", sunshine_temp_desc);
+                send_watch.putExtra("sunshine_weather_id", sunshine_weather_id);
+                send_watch.putExtra("sunshine_time_millis", sunshine_time_millis);
+                sendBroadcast(send_watch);
 
             }
 

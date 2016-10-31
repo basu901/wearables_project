@@ -116,7 +116,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements 
         String locationQuery = Utility.getPreferredLocation(getContext());
         Uri weatherUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationQuery, System.currentTimeMillis());
         Cursor cursor = getContext().getContentResolver().query(weatherUri, NOTIFY_WEATHER_PROJECTION, null, null, null);
-        Log.i(LOG_TAG, "Get cursor");
+
         if (cursor != null && cursor.moveToFirst()) {
             double high = cursor.getDouble(INDEX_MAX_TEMP);
             double low = cursor.getDouble(INDEX_MIN_TEMP);
@@ -125,18 +125,15 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements 
 
             String watch_high = Utility.formatTemperature(getContext(), high);
             String watch_low = Utility.formatTemperature(getContext(), low);
-            // Create data map
-            Log.i(LOG_TAG, "Creating DataMap for Watch");
-            PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/sunshine_watch_data");
-            putDataMapReq.getDataMap().putString("sunshine_temp_high", watch_high);
-            putDataMapReq.getDataMap().putString("sunshine_temp_low", watch_low);
-            putDataMapReq.getDataMap().putString("sunshine_temp_desc", description);
-            putDataMapReq.getDataMap().putInt("sunshine_weather_id", weather_id);
-            putDataMapReq.getDataMap().putLong("sunshine_time_millis", System.currentTimeMillis());
-            Log.i(LOG_TAG, "High and low: " + watch_high + ", " + watch_low);
-            Log.i(LOG_TAG, "Weather id: " + weather_id);
 
-            PutDataRequest putDataReq = putDataMapReq.asPutDataRequest().setUrgent();
+            PutDataMapRequest mapRequest = PutDataMapRequest.create("/sunshine_watch_data");
+            mapRequest.getDataMap().putString("sunshine_temp_high", watch_high);
+            mapRequest.getDataMap().putString("sunshine_temp_low", watch_low);
+            mapRequest.getDataMap().putString("sunshine_temp_desc", description);
+            mapRequest.getDataMap().putInt("sunshine_weather_id", weather_id);
+            mapRequest.getDataMap().putLong("sunshine_time_millis", System.currentTimeMillis());
+
+            PutDataRequest putDataReq = mapRequest.asPutDataRequest().setUrgent();
             PendingResult<DataApi.DataItemResult> pendingResult =
                     Wearable.DataApi.putDataItem(mGoogleApiClient, putDataReq);
             cursor.close();
